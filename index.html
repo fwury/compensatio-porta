@@ -915,13 +915,14 @@
 				}
 
 				if (reaction == sessionStorage.reaction) {
-					checkmark();
 					if (reaction == "true") {
+						checkmark();
 						document.getElementById("reaction_button_1").style.opacity = "0.5";
 						document.getElementById("reaction_button_2").style.opacity = "0.5";
 						step2();
 					}
 					else {
+						checkmark(true);
 						reset(false);
 					}
 				}
