@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Compensatio Porta</title>
+		<style>
+			@font-face {
+				font-family: 'Familjen Grotesk';
+				src: url('assets/familjen_grotesk.ttf') format('truetype');
+			}
+
+			@keyframes fade_in {
+				0% { opacity: 0; }
+				100% { opacity: 1; }
+			}
+
+			@keyframes blink {
+				0% { opacity : 0; }
+				50% { opacity : 1; }
+				100% { opacity : 0; }
+			}
+
+			@keyframes slide_fade {
+				0% { opacity: 0; transform: translate(0, 0.5vh); }
+				100% { opacity: 1; }
+			}
+
+			@keyframes info {
+				0% { opacity: 0 }
+				10% { opacity: 1 }
+				90% { opacity: 1 }
+				100% { opacity: 0 }
+			}
+
+			.animate {
+				animation: slide_fade 1s;
+			}
+			
+			body {
+				font-family: 'Familjen Grotesk', sans-serif;
+				background-color: #131313;
+				margin: 0;
+			}
+
+			#content_box {
+				position: fixed;
+				width: 75vw;
+				height: 100vh;
+				padding-left: 5vw;
+				transition: opacity 0.5s;
+			}
+
+			#equation {
+				width: 75vw;
+				position: fixed;
+				top: 5vh;
+				color: #ffffff;
+				font-size: 2vw;
+				animation: fade_in 1s;
+			}
+
+			.coefficient_input, .product_input {
+				border-left: none;
+				border-right: none;
+				border-top: none;
+				border-bottom: 1px solid #ffffff;
+				padding: 0.2vw;
+				background: transparent;
+				color: white;
+				font-family: 'Familjen Grotesk', sans-serif;
+				font-size: 2vw;
+				outline: none;
+			}
+			
+			.coefficient_input {
+				width: 5vw;
+				display: none;
+			}
+
+			.product_input {
+				width: 10vw;
+				display: none;
+			}
+
+			#type_selection {
+				position: fixed;
+				width: 20vw;
+				bottom: 50vh;
+				animation: slide_fade 1s;
+			}
+
+			.type_button {
+				width: 20vw;
+				height: 4vh;
+				margin-bottom: 1vh;
+				padding-left: 1vw;
+				padding-right: 1vw;
+				padding-top: 0.5vh;
+				padding-bottom: 0.5vh;
+				background-color: #444444;
+				border: 1px solid #f4fbff;
+				border-radius: 5px;
+				color: white;
+				font-size: 1vw;
+				font-family: 'Familjen Grotesk', sans-serif;
+				text-align: left;
+				transition: opacity 1s, background-color 0.2s, font-weight 0.2s, border-weight 0.2s;
+			}
+
+			.reaction_button {
+				position: fixed;
+				width: 10vw;
+				height: 29vh;
+				bottom: 51vh;
+				left: 28vw;
+				margin-right: 5vw;
+				background-color: #444444;
+				border: 1px solid #f4fbff;
+				border-radius: 5px;
+				color: white;
+				font-size: 1vw;
+				font-family: 'Familjen Grotesk', sans-serif;
+				text-align: center;
+				transition: opacity 1s, background-color 0.2s, font-weight 0.2s, border-weight 0.2s;
+			}
+
+			.type_button:hover, .reaction_button:hover {
+				cursor: pointer;
+				background-color: #535c5d;
+				transition: background-color 0.2s;
+			}
+
+			#reaction_button_2 {
+				left: 39vw;
+			}
+
+			.button_icon {
+				width: 7.5vw;
+				filter: invert(100%);
+			}
+
+			#info_box {
+				position: fixed;
+				width: 30vw;
+				height: 100vh;
+				left: 70vw;
+				padding: 1vw;
+				background-color: #444444;
+			}
+
+			#reactivity_series_table, #solubility_rules_table {
+				width: 28vw;
+				margin-bottom: 1vw;
+				border: 1px solid #131313;
+				border-collapse: collapse;
+				table-layout: fixed;
+				font-size: 0.8vw;
+			}
+
+			#reactivity_series_table td, #reactivity_series_table th, #solubility_rules_table td, #solubility_rules_table th {
+				padding: 0.2vw;
+				border: 1px solid #f4fbff;
+				color: #f4fbff;
+			}
+
+			#reactivity_series_table th, #solubility_rules_table th {
+				background-color: #f4fbff;
+				color: #131313;
+			}
+
+			.coefficient {
+				display: none;
+			}
+
+			.product {
+				display: none;
+			}
+
+			.product_plus {
+				display: none;
+				transition: opacity 1s;
+			}
+
+			#reaction_selection {
+				opacity: 0;
+				transition: opacity 0.5s;
+			}
+
+			#periodic_table {
+				padding-left: 5vw;
+			}
+
+			#periodic_table table {
+				position: fixed;
+				bottom: 5vh;
+			}
+
+			#periodic_table td {
+				font-size: 0.8vw;
+				height: 1.5vw;
+				width: 2.5vw;
+				color: #f4fbff;
+				border: 1px solid #f4fbff;
+				border-radius: 2px;
+				text-align: center;
+				transition: background-color 1s, color 1s, font-weight 1s;
+			}
+
+			#periodic_table td.hide {
+				background-color: transparent;
+				border: none;
+				text-align: right;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="content_box">
+			<h1 id="equation"></h1>
+			<div id="type_selection">
+				<button class="type_button" onclick="select_type('synthesis', this)" id="type_button_1">🄰&nbsp;&nbsp;&nbsp;Synthesis</button>
+				<button class="type_button" onclick="select_type('decomposition', this)" id="type_button_2">🄱&nbsp;&nbsp;&nbsp;Decomposition</button>
+				<button class="type_button" onclick="select_type('single_displacement', this)" id="type_button_3">🄲&nbsp;&nbsp;&nbsp;Single Displacement</button>
+				<button class="type_button" onclick="select_type('double_displacement', this)" id="type_button_4">🄳&nbsp;&nbsp;&nbsp;Double Displacement</button>
+				<button class="type_button" onclick="select_type('combustion', this)" id="type_button_5">🄴&nbsp;&nbsp;&nbsp;Combustion</button>
+				<button class="type_button" onclick="select_type('neutralization', this)" id="type_button_6">🄵&nbsp;&nbsp;&nbsp;Neutralization</button>
+			</div>
+			<div id="reaction_selection">
+				<button class="reaction_button" onclick="select_reaction('true')" id="reaction_button_1"><img class="button_icon" src="assets/reaction.png"><br /><br />🅈&nbsp;&nbsp;&nbsp;Reaction</button>
+				<button class="reaction_button" onclick="select_reaction('false')" id="reaction_button_2"><img class="button_icon" src="assets/no_reaction.png"><br /><br />🄽&nbsp;&nbsp;&nbsp;No reaction</button>
+			</div>
+		</div>
+		<div id="periodic_table">
+			<table>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_H"><sup>1</sup> H</td>
+					<td class="hide" colspan="16"></td>
+					<td class="periodic_table_element" id="periodic_table_He"><sup>2</sup> He</td>
+				</tr>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_Li"><sup>3</sup> Li</td>
+					<td class="periodic_table_element" id="periodic_table_Be"><sup>4</sup> Be</td>
+					<td class="hide" colspan="10"></td>
+					<td class="periodic_table_element" id="periodic_table_B"><sup>5</sup> B</td>
+					<td class="periodic_table_element" id="periodic_table_C"><sup>6</sup> C</td>
+					<td class="periodic_table_element" id="periodic_table_N"><sup>7</sup> N</td>
+					<td class="periodic_table_element" id="periodic_table_O"><sup>8</sup> O</td>
+					<td class="periodic_table_element" id="periodic_table_F"><sup>9</sup> F</td>
+					<td class="periodic_table_element" id="periodic_table_Ne"><sup>10</sup> Ne</td>
+				</tr>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_Na"><sup>11</sup> Na</td>
+					<td class="periodic_table_element" id="periodic_table_Mg"><sup>12</sup> Mg</td>
+					<td class="hide" colspan="10"></td>
+					<td class="periodic_table_element" id="periodic_table_Al"><sup>13</sup> Al</td>
+					<td class="periodic_table_element" id="periodic_table_Si"><sup>14</sup> Si</td>
+					<td class="periodic_table_element" id="periodic_table_P"><sup>15</sup> P</td>
+					<td class="periodic_table_element" id="periodic_table_S"><sup>16</sup> S</td>
+					<td class="periodic_table_element" id="periodic_table_Cl"><sup>17</sup> Cl</td>
+					<td class="periodic_table_element" id="periodic_table_Ar"><sup>18</sup> Ar</td>
+				</tr>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_K"><sup>19</sup> K</td>
+					<td class="periodic_table_element" id="periodic_table_Ca"><sup>20</sup> Ca</td>
+					<td class="periodic_table_element" id="periodic_table_Sc"><sup>21</sup> Sc</td>
+					<td class="periodic_table_element" id="periodic_table_Ti"><sup>22</sup> Ti</td>
+					<td class="periodic_table_element" id="periodic_table_V"><sup>23</sup> V</td>
+					<td class="periodic_table_element" id="periodic_table_Cr"><sup>24</sup> Cr</td>
+					<td class="periodic_table_element" id="periodic_table_Mn"><sup>25</sup> Mn</td>
+					<td class="periodic_table_element" id="periodic_table_Fe"><sup>26</sup> Fe</td>
+					<td class="periodic_table_element" id="periodic_table_Co"><sup>27</sup> Co</td>
+					<td class="periodic_table_element" id="periodic_table_Ni"><sup>28</sup> Ni</td>
+					<td class="periodic_table_element" id="periodic_table_Cu"><sup>29</sup> Cu</td>
+					<td class="periodic_table_element" id="periodic_table_Zn"><sup>30</sup> Zn</td>
+					<td class="periodic_table_element" id="periodic_table_Ga"><sup>31</sup> Ga</td>
+					<td class="periodic_table_element" id="periodic_table_Ge"><sup>32</sup> Ge</td>
+					<td class="periodic_table_element" id="periodic_table_As"><sup>33</sup> As</td>
+					<td class="periodic_table_element" id="periodic_table_Se"><sup>34</sup> Se</td>
+					<td class="periodic_table_element" id="periodic_table_Br"><sup>35</sup> Br</td>
+					<td class="periodic_table_element" id="periodic_table_Kr"><sup>36</sup> Kr</td>
+				</tr>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_Rb"><sup>37</sup> Rb</td>
+					<td class="periodic_table_element" id="periodic_table_Sr"><sup>38</sup> Sr</td>
+					<td class="periodic_table_element" id="periodic_table_Y"><sup>39</sup> Y</td>
+					<td class="periodic_table_element" id="periodic_table_Zr"><sup>40</sup> Zr</td>
+					<td class="periodic_table_element" id="periodic_table_Nb"><sup>41</sup> Nb</td>
+					<td class="periodic_table_element" id="periodic_table_Mo"><sup>42</sup> Mo</td>
+					<td class="periodic_table_element" id="periodic_table_Tc"><sup>43</sup> Tc</td>
+					<td class="periodic_table_element" id="periodic_table_Ru"><sup>44</sup> Ru</td>
+					<td class="periodic_table_element" id="periodic_table_Rh"><sup>45</sup> Rh</td>
+					<td class="periodic_table_element" id="periodic_table_Pd"><sup>46</sup> Pd</td>
+					<td class="periodic_table_element" id="periodic_table_Ag"><sup>47</sup> Ag</td>
+					<td class="periodic_table_element" id="periodic_table_Cd"><sup>48</sup> Cd</td>
+					<td class="periodic_table_element" id="periodic_table_In"><sup>49</sup> In</td>
+					<td class="periodic_table_element" id="periodic_table_Sn"><sup>50</sup> Sn</td>
+					<td class="periodic_table_element" id="periodic_table_Sb"><sup>51</sup> Sb</td>
+					<td class="periodic_table_element" id="periodic_table_Te"><sup>52</sup> Te</td>
+					<td class="periodic_table_element" id="periodic_table_I"><sup>53</sup> I</td>
+					<td class="periodic_table_element" id="periodic_table_Xe"><sup>54</sup> Xe</td>
+				</tr>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_Cs"><sup>55</sup> Cs</td>
+					<td class="periodic_table_element" id="periodic_table_Ba"><sup>56</sup> Ba</td>
+					<td class="periodic_table_element" id="periodic_table_La"><sup>57</sup> La*</td>
+					<td class="periodic_table_element" id="periodic_table_Hf"><sup>72</sup> Hf</td>
+					<td class="periodic_table_element" id="periodic_table_Ta"><sup>73</sup> Ta</td>
+					<td class="periodic_table_element" id="periodic_table_W"><sup>74</sup> W</td>
+					<td class="periodic_table_element" id="periodic_table_Re"><sup>75</sup> Re</td>
+					<td class="periodic_table_element" id="periodic_table_Os"><sup>76</sup> Os</td>
+					<td class="periodic_table_element" id="periodic_table_Ir"><sup>77</sup> Ir</td>
+					<td class="periodic_table_element" id="periodic_table_Pt"><sup>78</sup> Pt</td>
+					<td class="periodic_table_element" id="periodic_table_Au"><sup>79</sup> Au</td>
+					<td class="periodic_table_element" id="periodic_table_Hg"><sup>80</sup> Hg</td>
+					<td class="periodic_table_element" id="periodic_table_Tl"><sup>81</sup> Tl</td>
+					<td class="periodic_table_element" id="periodic_table_Pb"><sup>82</sup> Pb</td>
+					<td class="periodic_table_element" id="periodic_table_Bi"><sup>83</sup> Bi</td>
+					<td class="periodic_table_element" id="periodic_table_Po"><sup>84</sup> Po</td>
+					<td class="periodic_table_element" id="periodic_table_At"><sup>85</sup> At</td>
+					<td class="periodic_table_element" id="periodic_table_Rn"><sup>86</sup> Rn</td>
+				</tr>
+				<tr>
+					<td class="periodic_table_element" id="periodic_table_Fr"><sup>87</sup> Fr</td>
+					<td class="periodic_table_element" id="periodic_table_Ra"><sup>88</sup> Ra</td>
+					<td class="periodic_table_element" id="periodic_table_Ac"><sup>89</sup> Ac**</td>
+					<td class="periodic_table_element" id="periodic_table_Rf"><sup>104</sup> Rf</td>
+					<td class="periodic_table_element" id="periodic_table_Db"><sup>105</sup> Db</td>
+					<td class="periodic_table_element" id="periodic_table_Sg"><sup>106</sup> Sg</td>
+					<td class="periodic_table_element" id="periodic_table_Bh"><sup>107</sup> Bh</td>
+					<td class="periodic_table_element" id="periodic_table_Hs"><sup>108</sup> Hs</td>
+					<td class="periodic_table_element" id="periodic_table_Mt"><sup>109</sup> Mt</td>
+					<td class="periodic_table_element" id="periodic_table_Ds"><sup>110</sup> Ds</td>
+					<td class="periodic_table_element" id="periodic_table_Rg"><sup>111</sup> Rg</td>
+					<td class="periodic_table_element" id="periodic_table_Cn"><sup>112</sup> Cn</td>
+					<td class="periodic_table_element" id="periodic_table_Nh"><sup>113</sup> Nh</td>
+					<td class="periodic_table_element" id="periodic_table_Fl"><sup>114</sup> Fl</td>
+					<td class="periodic_table_element" id="periodic_table_Mc"><sup>115</sup> Mc</td>
+					<td class="periodic_table_element" id="periodic_table_Lv"><sup>116</sup> Lv</td>
+					<td class="periodic_table_element" id="periodic_table_Ts"><sup>117</sup> Ts</td>
+					<td class="periodic_table_element" id="periodic_table_Og"><sup>118</sup> Og</td>
+				</tr>
+				<tr>
+					<td class="hide" colspan="16"></td>
+				</tr>
+				<tr>
+					<td class="hide" colspan="2"></td>
+					<td class="hide">*</td>
+					<td class="periodic_table_element" id="periodic_table_Ce"><sup>58</sup> Ce</td>
+					<td class="periodic_table_element" id="periodic_table_Pr"><sup>59</sup> Pr</td>
+					<td class="periodic_table_element" id="periodic_table_Nd"><sup>60</sup> Nd</td>
+					<td class="periodic_table_element" id="periodic_table_Pm"><sup>61</sup> Pm</td>
+					<td class="periodic_table_element" id="periodic_table_Sm"><sup>62</sup> Sm</td>
+					<td class="periodic_table_element" id="periodic_table_Eu"><sup>63</sup> Eu</td>
+					<td class="periodic_table_element" id="periodic_table_Gd"><sup>64</sup> Gd</td>
+					<td class="periodic_table_element" id="periodic_table_Tb"><sup>65</sup> Tb</td>
+					<td class="periodic_table_element" id="periodic_table_Dy"><sup>66</sup> Dy</td>
+					<td class="periodic_table_element" id="periodic_table_Ho"><sup>67</sup> Ho</td>
+					<td class="periodic_table_element" id="periodic_table_Er"><sup>68</sup> Er</td>
+					<td class="periodic_table_element" id="periodic_table_Tm"><sup>69</sup> Tm</td>
+					<td class="periodic_table_element" id="periodic_table_Yb"><sup>70</sup> Yb</td>
+					<td class="periodic_table_element" id="periodic_table_Lu"><sup>71</sup> Lu</td>
+				</tr>
+				<tr>
+					<td class="hide" colspan="2"></td>
+					<td class="hide">**</td>
+					<td class="periodic_table_element" id="periodic_table_Th"><sup>90</sup> Th</td>
+					<td class="periodic_table_element" id="periodic_table_Pa"><sup>91</sup> Pa</td>
+					<td class="periodic_table_element" id="periodic_table_U"><sup>92</sup> U</td>
+					<td class="periodic_table_element" id="periodic_table_Np"><sup>93</sup> Np</td>
+					<td class="periodic_table_element" id="periodic_table_Pu"><sup>94</sup> Pu</td>
+					<td class="periodic_table_element" id="periodic_table_Am"><sup>95</sup> Am</td>
+					<td class="periodic_table_element" id="periodic_table_Cm"><sup>96</sup> Cm</td>
+					<td class="periodic_table_element" id="periodic_table_Bk"><sup>97</sup> Bk</td>
+					<td class="periodic_table_element" id="periodic_table_Cf"><sup>98</sup> Cf</td>
+					<td class="periodic_table_element" id="periodic_table_Es"><sup>99</sup> Es</td>
+					<td class="periodic_table_element" id="periodic_table_Fm"><sup>100</sup> Fm</td>
+					<td class="periodic_table_element" id="periodic_table_Md"><sup>101</sup> Md</td>
+					<td class="periodic_table_element" id="periodic_table_No"><sup>102</sup> No</td>
+					<td class="periodic_table_element" id="periodic_table_Lr"><sup>103</sup> Lr</td>
+				</tr>
+			</table>
+		</div>
+		<div id="info_box">
+			<div id="reactivity_series">
+				<table id="reactivity_series_table">
+					<tr>
+						<th colspan="2"><b>Reactivity Series</b></th>
+					</tr>
+					<tr>
+						<td><b>Metal</b></td>
+						<td><b>Ion</b></td>
+					</tr>
+					<tr>
+						<td>Lithium</td>
+						<td>Li<sup>+</sup></td>
+					</tr>
+					<tr>
+						<td>Potassium</td>
+						<td>K<sup>+</sup></td>
+					</tr>
+					<tr>
+						<td>Calcium</td>
+						<td>Ca<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Sodium</td>
+						<td>Na<sup>+</sup></td>
+					</tr>
+					<tr>
+						<td>Magnesium</td>
+						<td>Mg<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Aluminum</td>
+						<td>Al<sup>3+</sup></td>
+					</tr>
+					<tr>
+						<td>Manganese</td>
+						<td>Mn<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Zinc</td>
+						<td>Zn<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Chromium</td>
+						<td>Cr<sup>2+</sup>, Cr<sup>3+</sup></td>
+					</tr>
+					<tr>
+						<td>Iron</td>
+						<td>Fe<sup>2+</sup>, Fe <sup>3+</sup></td>
+					</tr>
+					<tr>
+						<td>Lead</td>
+						<td>Pb<sup>2+</sup>, Pb<sup>3+</sup></td>
+					</tr>
+					<tr>
+						<td>Hydrogen</td>
+						<td>H<sup>+</sup></td>
+					</tr>
+					<tr>
+						<td>Copper</td>
+						<td>Cu<sup>+</sup>, Cu<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Mercury</td>
+						<td>Hg<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Silver</td>
+						<td>Ag<sup>+</sup></td>
+					</tr>
+					<tr>
+						<td>Platinum</td>
+						<td>Pt<sup>2+</sup></td>
+					</tr>
+					<tr>
+						<td>Gold</td>
+						<td>Au<sup>+</sup>, Au<sup>3+</sup></td>
+					</tr>
+				</table>
+			</div>
+			<div id="solubility_rules">
+				<table id="solubility_rules_table">
+					<tr>
+						<th colspan="4"><b>Solubility Rules</b></th>
+					</tr>
+					<tr>
+						<td><b>Cations</b></td>
+						<td><b>Anions</b></td>
+						<td><b>Results</b></td>
+						<td><b>Exceptions</b></td>
+					</tr>
+					<tr>
+						<td>Li<sup>+</sup>, Na<sup>+</sup>, K<sup>+</sup>, Rb<sup>+</sup>, Cs<sup>+</sup>, NH<sub>4</sub><sup>+</sup></td>
+						<td>NO<sub>3</sub><sup>-</sup>, CH<sub>3</sub>CO<sub>2</sub><sup>-</sup>, ClO<sub>3</sub><sup>-</sup></td>
+						<td>Soluble</td>
+						<td>Ca(ClO<sub>3</sub>)<sub>2</sub></td>
+					</tr>
+					<tr>
+						<td>Ag<sup>+</sup>, Pb<sup>2+</sup>, Cu<sup>+</sup>, Hg<sup>+</sup></td>
+						<td>CO<sub>3</sub><sup>2-</sup>, PO<sub>4</sub><sup>3-</sup>, O<sup>2-</sup>, S<sup>2-</sup>, OH<sup>-</sup></td>
+						<td>Insoluble</td>
+						<td>BaO, Ba(OH)<sub>2</sub>, group 2 sulfides</td>
+					</tr>
+					<tr>
+						<td></td>
+						<td>Cl<sup>-</sup>, Br<sup>-</sup>, I<sup>-</sup></td>
+						<td>Soluble</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Ba<sup>2+</sup>, Ca<sup>2+</sup>, Sr<sup>2+</sup></td>
+						<td></td>
+						<td>Insoluble</td>
+						<td></td>
+					</tr>
+					<tr>
+						<td>Mg<sup>2+</sup>, Cu<sup>2+</sup>, Zn<sup>2+</sup>, Fe<sup>2+</sup>, Fe<sup>3+</sup>, Al<sup>3+</sup></td>
+						<td>SO<sub>4</sub><sup>2-</sup></td>
+						<td>Soluble</td>
+						<td></td>
+					</tr>
+				</table>
+			</div>
+		</div>
+	</body>
+	<script>
+		function parse_formula(formula) {
+			return formula.replace(/\d+/g, "<sub>$&</sub>");
+		}
+
+		function checkmark() {
+			var checkmark = document.createElement("img");
+			checkmark.src = "assets/checkmark.png";
+			checkmark.style.position = "fixed";
+			checkmark.style.top = "5vh";
+			checkmark.style.left = "62vw";
+			checkmark.style.width = "5vw";
+			checkmark.style.transform = "translate(-5vh, 0)";
+			checkmark.style.filter = "invert(100%)";
+			checkmark.style.animation = "blink 1s";
+			checkmark.style.opacity = "0";
+			document.body.appendChild(checkmark);
+			setTimeout(function() {
+				checkmark.remove();
+			}, 1000);
+
+			var audio = new Audio('assets/correct.mp3');
+			audio.play();
+		}
+
+		function elements_in(formula) {
+			var reactants = formula.split("=")[0].split("+");
+			var elements = new Set();
+
+			reactants.forEach((species) => {
+				var matches = species.match(/[A-Z][a-z]?\d*/g);
+				matches.forEach((match) => {
+					var element = match.match(/[A-Z][a-z]?/)[0];
+					elements.add(element);
+				});
+			});
+			
+			return Array.from(elements);
+		}
+
+		function x() {
+			var x = document.createElement("img");
+			x.src = "assets/x.png";
+			x.style.position = "fixed";
+			x.style.top = "5vh";
+			x.style.left = "62vw";
+			x.style.width = "5vw";
+			x.style.transform = "translate(-5vh, 0)";
+			x.style.filter = "invert(100%)";
+			x.style.animation = "blink 1s";
+			x.style.opacity = "0";
+			document.body.appendChild(x);
+			setTimeout(function() {
+				x.remove();
+			}, 1000);
+
+			var audio = new Audio('assets/incorrect.mp3');
+			audio.play();
+		}
+
+		function check_size() {
+			if (window.innerWidth / window.innerHeight < 1.6 || window.innerWidth / window.innerHeight > 2.05) {
+				info("Your window aspect ratio is not suitable for viewing this website. Some elements may not be displayed properly.", document.getElementById("equation"));
+			}
+		}
+
+		function info(text, existing_element) {
+			var info = document.createElement("div");
+			info.innerHTML = text;
+			info.id = "info";
+			info.style.animation = "info 3s";
+			info.style.transition = "opacity 0.5s";
+			info.style.color = "#ffffff";
+			info.style.position = "absolute";
+			info.style.bottom = window.innerHeight - existing_element.getBoundingClientRect().top + info.offsetHeight + "px";
+			info.style.left = existing_element.getBoundingClientRect().left + "px";
+			document.body.appendChild(info);
+			setTimeout(function() {
+				info.remove();
+			}, 3000);
+		}
+
+		const equations = {
+			synthesis: ["2 Mg + O2 = 2 MgO",
+				"4 Na + O2 = 2 Na2O",
+				"4 Al + 3 C = Al4C3",
+				"2 H2 + O2 = 2 H2O",
+				"N2 + 3 H2 = 2 NH3",
+				"S8 + 8 O2 = 8 SO2",
+				"P4 + 5 O2 = 2 P2O5",
+				"16 Ag + S8 = 8 Ag2S",
+				"2 Al + 3 Br2 = 2 AlBr3",
+				"2 Na + Cl2 = 2 NaC",
+				"SO3 + H2O = H2SO4",
+				"2 Ca + O2 = 2 CaO",
+				"4 Al + 3 O2 = 2 Al2O3",
+				"2 Cu + O2 = 2 CuO",
+				"3 Mg + N2 = Mg3N2",
+				"8 Be + S8 = 8 BeS",
+				"MgO + H2O = Mg(OH)2",
+				"Li2O + H2O = LiOH",
+				"Na2O + H2O = NaOH",
+				"K2O + H2O = KOH",
+				"BeO + H2O = Be(OH)2",
+				"CaO + H2O = Ca(OH)2"],
+			decomposition: ["2 NaCl = 2 Na + Cl2",
+				"2 Ag2O = 4 Ag + O2",
+				"2 Al2O3 = 4 Al + 3 O2",
+				"2 H2O = 2 H2 + O2",
+				"BeF2 = Be + F2",
+				"2 HCl = H2 + Cl2",
+				"2 HgO = 2 Hg + O2",
+				"2 KCl = 2 K + Cl2",
+				"2 NaI = 2 Na + I2",
+				"2 Fe2O3 = 4 Fe + 3 O2"],
+			single_displacement: ["2 AlBr3 + 3 Cl2 = 2 AlCl3 + 3 Br2",
+				"2 Na + 2 H2O = 2 NaOH + H2",
+				"2 Al + Fe2O3 = Al2O3 + 2 Fe",
+				"LiF + K = KF + Li",
+				"Br2 + CaI2 = CaBr2 + I2",
+				"F2 + 2 KI = 2 KF + I2",
+				"2 Al + 3 CuCl2 = 2 AlCl3 + 3 Cu",
+				"Mg + 2 HCl = MgCl2 + H2",
+				"Mg + CuSO4 = MgSO4 + Cu",
+				"Na2S + 2 HCl = 2 NaCl + H2S",
+				"2 HCl + F2 = 2 HF + Cl2",
+				"Cl2 + 2 KBr = 2 KCl + Br2",
+				"2 AgNO3 + Ni = Ni(NO3)2 + 2 Ag",
+				"2 NaI + Br2 = 2 NaBr + I2",
+				"Br2 + 2 NaI = 2 NaBr + I2",
+				"Ca + 2 HCl = CaCl2 + H2",
+				"PbO + Zn = ZnO + Pb",
+				"Al + Li3PO4 = AlPO4 + 3 Li",
+				"Mg + Zn(NO3)2 = Mg(NO3)2 + Zn",
+				"2 K + PbI2 = Pb + 2 KI",
+				"Zn + 2 NaCl = 2 Na + ZnCl2",
+				"K + NaNO3 = Na + KNO3"],
+			double_displacement: ["Mg(NO3)2 + K2CO3 = MgCO3 + 2 KNO3",
+				"Al2(SO4)3 + 3 Ca(OH)2 = 2 Al(OH)3 + 3 CaSO4",
+				"2 NaNO3 + PbO = Pb(NO3)2 + Na2O",
+				"Ca3P2 + 6 H2O = 3 Ca(OH)2 + 2 PH3",
+				"2 AlI3 + 3 HgCl2 = 2 AlCl3 + 3 HgI2",
+				"3 AgNO3 + K3PO4 = Ag3PO4 + 3 KNO3",
+				"AgNO3 + NaCl = AgCl + NaNO3",
+				"Na2CO3 + 2 HCl = 2 NaCl + H2CO3",
+				"K2SO4 + BaCl2 = BaSO4 + 2 KCl",
+				"Pb(NO3)2 + 2 KI = PbI2 + 2 KNO3",
+				"2 FeCl3 + 3 Na2S = Fe2S3 + 6 NaCl",
+				"CaCl2 + Na2CO3 = CaCO3 + 2 NaCl",
+				"CuSO4 + 2 NaOH = Cu(OH)2 + Na2SO4",
+				"2 FeCl3 + 3 Na2S = 6 NaCl + Fe2S3",
+				"BaCl2 + Na2SO4 = BaSO4 + 2 NaCl",
+				"AlI + HgCl2 = HgI + AlCl2",
+				"2 AgNO3 + ZnI2 = 2 AgI + Zn(NO3)2",
+				"ZnS + 2 HCl = ZnCl2 + H2S",
+				"AgNO3 + NaBr = AgBr + NaNO3",
+				"CaCl2 + (NH4)2SO4 = CaSO4 + 2 NH4Cl",
+				"CaBr2 + Na2CO3 = CaCO3 + 2 NaBr",
+				"2 NH4OH + MgCl2 = Mg(OH)2 + 2 NH4Cl",
+				"(NH4)3PO4 + AlCl3 = 3 NH4Cl + AlPO4",
+				"2 NaOH + CaCl2 = 2 NaCl + Ca(OH)2",
+				"BaCl2 + K2SO4 = 2 KCl + BaSO4"],
+			double_displacement_no_reaction: ["KNO3 + HCl = KCl + HNO3",
+				"AgCl + NaNO3 = AgNO3 + NaCl",
+				"BaCl2 + NaClO3 = Ba(ClO3)2 + NaCl",
+				"Hg2SO4 + 2 NH4NO3 = 2 HgNO3 + (NH4)2SO4",
+				"Na2SO4 + CuCl2 = 2 NaCl + CuSO4"],
+			combustion: ["2 C2H6 + 7 O2 = 4 CO2 + 6 H2O",
+				"C3H8 + 5 O2 = 3 CO2 + 4 H2O",
+				"​​2 C2H2 + 5 O2 = 4 CO2 + 2 H2O",
+				"2 C6H6 + 15 O2 = 12 CO2 + 6 H2O",
+				"2 C8H18 + 25 O2 = 16 CO2 + 18 H2O",
+				"2 C4H10 + 13 O2 = 8 CO2 + 10 H2O",
+				"CH4 + 2 O2 = CO2 + 2 H2O",
+				"C8H16 + 12 O2 = 8 CO2 + 8 H2O"],
+			neutralization: ["HCl + NaOH = NaCl + H2O",
+				"2 HCl + CaCO3 = CaCl2 + H2O + CO2",
+				"H2SO4 + 2 NaHCO3 = Na2SO4 + 2 CO2 + 2 H2O",
+				"Na2CO3 + 2 HCl = 2 NaCl + H2O + CO2",
+				"HF + NaOH = H2O + NaF",
+				"Mg(OH)2 + H2SO4 = MgSO4 + 2 H2O",
+				"3 CaCO3 + 2 H3PO4 = Ca3(PO4)2 + 3 CO2 + 3 H2O",
+				"3 Ca(OH)2 + 2 H3PO4 = Ca3(PO4)2 + 6 H2O",
+				"HF + NaOH = NaF + H2O",
+				"Ca(OH)2 + 2 HNO3 = Ca(NO3)2 + 2 H2O",
+				"Fe(OH)3 + H3PO4 = FePO4 + 3 H2O"]
+		};
+
+		function reset(first_time) {
+			sessionStorage.step = 0;
+			delete sessionStorage.reaction;
+			var timeout_time = 0;
+
+			if (!first_time) {
+				document.getElementById("reaction_selection").style.opacity = "0";
+				document.getElementById("content_box").style.opacity = "0";
+				timeout_time = 500;
+
+				for (let i = 0; i < document.getElementsByClassName("type_button").length; i++) {
+					document.getElementsByClassName("type_button")[i].style.opacity = "1";
+					document.getElementsByClassName("type_button")[i].style.backgroundColor = "#444444";
+					document.getElementsByClassName("type_button")[i].style.fontWeight = "400";
+				}
+
+				for (let i = 0; i < document.getElementsByClassName("reaction_button").length; i++) {
+					document.getElementsByClassName("reaction_button")[i].style.backgroundColor = "#444444";
+					document.getElementsByClassName("reaction_button")[i].style.fontWeight = "400";
+					document.getElementsByClassName("reaction_button")[i].classList.remove("animate");
+				}
+
+				for (let i = 0; i < document.getElementsByClassName("periodic_table_element").length; i++) {
+					document.getElementsByClassName("periodic_table_element")[i].style.backgroundColor = "transparent";
+					document.getElementsByClassName("periodic_table_element")[i].style.color = "#f4fbff";
+					document.getElementsByClassName("periodic_table_element")[i].style.fontWeight = 400;
+				}
+			}
+
+			setTimeout(function() {
+				document.getElementById("content_box").style.opacity = "1";
+				document.getElementById("equation").innerHTML = "";
+
+				var equation;
+				switch (Math.floor(Math.random() * 8)) {
+					case 0:
+						sessionStorage.type = "synthesis";
+						equation = equations.synthesis[Math.floor(Math.random()*equations.synthesis.length)];
+						break;
+					case 1:
+						sessionStorage.type = "decomposition";
+						equation = equations.decomposition[Math.floor(Math.random()*equations.decomposition.length)];
+						break;
+					case 2:
+						sessionStorage.type = "single_displacement";
+						sessionStorage.reaction = "true";
+						equation = equations.single_displacement[Math.floor(Math.random()*equations.single_displacement.length)];
+						break;
+					case 3:
+						sessionStorage.type = "single_displacement";
+						sessionStorage.reaction = "false";
+						equation = equations.single_displacement[Math.floor(Math.random()*equations.single_displacement.length)].split(" = ").reverse().join(" = ");
+						break;
+					case 4:
+						sessionStorage.type = "double_displacement";
+						sessionStorage.reaction = "true";
+						equation = equations.double_displacement[Math.floor(Math.random()*equations.double_displacement.length)];
+						break;
+					case 5:
+						sessionStorage.type = "double_displacement";
+						sessionStorage.reaction = "false";
+						equation = equations.double_displacement_no_reaction[Math.floor(Math.random()*equations.double_displacement_no_reaction.length)];
+						break;
+					case 6:
+						sessionStorage.type = "combustion";
+						equation = equations.combustion[Math.floor(Math.random()*equations.combustion.length)];
+						break;
+					default:
+						sessionStorage.type = "neutralization";
+						equation = equations.neutralization[Math.floor(Math.random()*equations.neutralization.length)];
+				}
+
+				sessionStorage.equation_text = equation;
+
+				var equation_object = {
+					reactants: [],
+					products: []
+				};
+				var reactants = equation.split(" = ")[0].split(" + ");
+				var products = equation.split(" = ")[1].split(" + ");
+				
+				for (i = 0; i < reactants.length; i++) {
+					if (reactants[i].split(" ").length == 1) {
+						equation_object.reactants.push({
+							coefficient: "1",
+							name: reactants[i]
+						});
+					}
+					else {
+						equation_object.reactants.push({
+							coefficient: reactants[i].split(" ")[0],
+							name: reactants[i].split(" ")[1]
+						});
+					}
+				}
+
+				for (i = 0; i < products.length; i++) {
+					if (products[i].split(" ").length == 1) {
+						equation_object.products.push({
+							coefficient: "1",
+							name: products[i]
+						});
+					}
+					else {
+						equation_object.products.push({
+							coefficient: products[i].split(" ")[0],
+							name: products[i].split(" ")[1]
+						});
+					}
+				}
+
+				for (let i = 0; i < equation_object.reactants.length; i++) {
+					document.getElementById("equation").innerHTML += `<input class="coefficient_input" id="coefficient_input_${equation_object.reactants[i].name}" /><span class="coefficient" id="coefficient_${equation_object.reactants[i].name}">${equation_object.reactants[i].coefficient}&nbsp;</span><span id="reactant_${equation_object.reactants[i].name}">${parse_formula(equation_object.reactants[i].name)}&nbsp;</span>`
+					if (i < equation_object.reactants.length - 1) {
+						document.getElementById("equation").innerHTML += "+&nbsp;";
+					}
+				}
+
+				document.getElementById("equation").innerHTML += "→&nbsp;";
+
+				for (let i = 0; i < equation_object.products.length; i++) {
+					document.getElementById("equation").innerHTML += `<input class="coefficient_input" id="coefficient_input_${equation_object.products[i].name}" /><span class="coefficient" id="coefficient_${equation_object.products[i].name}">${equation_object.products[i].coefficient}&nbsp;</span><input class="product_input" id="product_input_${equation_object.products[i].name}" />`
+					if (i < equation_object.products.length - 1) {
+						document.getElementById("equation").innerHTML += `<span class="product_plus">+&nbsp;</span>`;
+					}
+				}
+
+				for (let i = 0; i < document.getElementsByClassName("coefficient_input").length; i++) {
+					document.getElementsByClassName("coefficient_input")[i].addEventListener("keydown", function(event) {
+						next_coefficient(event, document.getElementsByClassName("coefficient_input")[i]);
+					});
+					document.getElementsByClassName("coefficient_input")[i].addEventListener("input", function(event) {
+						check_max_length(document.getElementsByClassName("coefficient_input")[i]);
+					});
+				}
+
+				for (let i = 0; i < document.getElementsByClassName("product_input").length; i++) {
+					document.getElementsByClassName("product_input")[i].addEventListener("keydown", function(event) {
+						next_product(event, document.getElementsByClassName("product_input")[i]);
+					});
+				}
+
+				var elements = elements_in(equation);
+				for (let i = 0; i < elements.length; i++) {
+					document.getElementById(`periodic_table_${elements[i]}`).style.backgroundColor = "#f4fbff";
+					document.getElementById(`periodic_table_${elements[i]}`).style.color = "#131313";
+					document.getElementById(`periodic_table_${elements[i]}`).style.fontWeight = "700";
+				}
+
+				sessionStorage.equation = JSON.stringify(equation_object);
+			}, timeout_time);
+		}
+		
+		document.body.onload = function() {
+			reset(true);
+			check_size();
+		}
+
+		function select_type(type, button) {
+			if (sessionStorage.step == 0) {
+				for (i = 0; i < document.getElementsByClassName("type_button").length; i++) {
+					if (document.getElementsByClassName("type_button")[i] != button) {
+						document.getElementsByClassName("type_button")[i].style.backgroundColor = "#444444";
+						document.getElementsByClassName("type_button")[i].style.fontWeight = "400";
+					}
+					else {
+						document.getElementsByClassName("type_button")[i].style.backgroundColor = "#535c5d";
+						document.getElementsByClassName("type_button")[i].style.fontWeight = "700";
+					}
+				}
+
+				if (type == sessionStorage.type) {
+					if (type == "single_displacement" || type == "double_displacement") {
+						sessionStorage.step = 1;
+						document.getElementById("reaction_selection").style.opacity = "1";
+						document.getElementById("reaction_button_1").classList.add("animate");
+						document.getElementById("reaction_button_2").classList.add("animate");
+					}
+					else {
+						step2();
+					}
+
+					document.getElementById("type_button_1").style.opacity = "0.5";
+					document.getElementById("type_button_2").style.opacity = "0.5";
+					document.getElementById("type_button_3").style.opacity = "0.5";
+					document.getElementById("type_button_4").style.opacity = "0.5";
+					document.getElementById("type_button_5").style.opacity = "0.5";
+					document.getElementById("type_button_6").style.opacity = "0.5";
+
+					checkmark();
+				}
+
+				else {
+					x();
+				}
+			}
+		}
+
+		function select_reaction(reaction) {
+			if (sessionStorage.step == 1) {
+				if (reaction == "true") {
+					document.getElementById("reaction_button_1").style.backgroundColor = "#535c5d";
+					document.getElementById("reaction_button_1").style.fontWeight = "700";
+					document.getElementById("reaction_button_2").style.backgroundColor = "#444444";
+					document.getElementById("reaction_button_2").style.fontWeight = "400";
+				}
+				
+				else {
+					document.getElementById("reaction_button_2").style.backgroundColor = "#535c5d";
+					document.getElementById("reaction_button_2").style.fontWeight = "700";
+					document.getElementById("reaction_button_1").style.backgroundColor = "#444444";
+					document.getElementById("reaction_button_1").style.fontWeight = "400";
+				}
+
+				if (reaction == sessionStorage.reaction) {
+					checkmark();
+					if (reaction == "true") {
+						document.getElementById("reaction_button_1").style.opacity = "0.5";
+						document.getElementById("reaction_button_2").style.opacity = "0.5";
+						step2();
+					}
+					else {
+						reset(false);
+					}
+				}
+
+				else {
+					x();
+				}
+			}
+		}
+
+		function next_coefficient(event, element) {
+			var coefficient_inputs = Array.from(document.getElementsByClassName("coefficient_input"));
+			
+			if (event.key == "ArrowLeft" || event.key == "Backspace") {
+				if ((element.selectionStart == 0 && element.selectionEnd == 0) && coefficient_inputs.indexOf(element) > 0) {
+					event.preventDefault();
+					coefficient_inputs[coefficient_inputs.indexOf(element) - 1].selectionStart = coefficient_inputs[coefficient_inputs.indexOf(element) - 1].value.length;
+					coefficient_inputs[coefficient_inputs.indexOf(element) - 1].selectionEnd = coefficient_inputs[coefficient_inputs.indexOf(element) - 1].value.length;
+					coefficient_inputs[coefficient_inputs.indexOf(element) - 1].focus();
+				}
+			}
+
+			else if (event.key == "ArrowRight") {
+				if (element.selectionStart == element.value.length && element.selectionEnd == element.value.length && coefficient_inputs.indexOf(element) < coefficient_inputs.length - 1) {
+					event.preventDefault();
+					coefficient_inputs[coefficient_inputs.indexOf(element) + 1].selectionStart = 0;
+					coefficient_inputs[coefficient_inputs.indexOf(element) + 1].selectionEnd = 0;
+					coefficient_inputs[coefficient_inputs.indexOf(element) + 1].focus();
+				}
+			}
+		}
+
+		function check_max_length(element) {
+			var coefficient_inputs = Array.from(document.getElementsByClassName("coefficient_input"));
+			var equation_object = JSON.parse(sessionStorage.equation);
+			var max_length = 1;
+
+			for (let i = 0; i < equation_object.reactants.length; i++) {
+				if (equation_object.reactants[i].name == element.id.replace("coefficient_input_", "")) {
+					max_length = equation_object.reactants[i].coefficient.length;
+				}
+			}
+
+			for (let i = 0; i < equation_object.products.length; i++) {
+				if (equation_object.products[i].name == element.id.replace("coefficient_input_", "")) {
+					max_length = equation_object.products[i].coefficient.length;
+				}
+			}
+
+			if (element.value >= max_length) {
+				if (coefficient_inputs.indexOf(element) < coefficient_inputs.length - 1) {
+					coefficient_inputs[coefficient_inputs.indexOf(element) + 1].selectionStart = coefficient_inputs[coefficient_inputs.indexOf(element) + 1].value.length;
+					coefficient_inputs[coefficient_inputs.indexOf(element) + 1].selectionEnd = coefficient_inputs[coefficient_inputs.indexOf(element) + 1].value.length;
+					coefficient_inputs[coefficient_inputs.indexOf(element) + 1].focus();
+				}
+			}
+		}	
+
+		function next_product(event, element) {
+			var product_inputs = Array.from(document.getElementsByClassName("product_input"));
+			
+			if (event.key == "ArrowLeft" || event.key == "Backspace") {
+				if ((element.selectionStart == 0 && element.selectionEnd == 0) && product_inputs.indexOf(element) > 0) {
+					event.preventDefault();
+					document.getElementsByClassName("product_input")[product_inputs.indexOf(element) - 1].selectionStart = document.getElementsByClassName("product_input")[product_inputs.indexOf(element) - 1].value.length;
+					document.getElementsByClassName("product_input")[product_inputs.indexOf(element) - 1].selectionEnd = document.getElementsByClassName("product_input")[product_inputs.indexOf(element) - 1].value.length;
+					document.getElementsByClassName("product_input")[product_inputs.indexOf(element) - 1].focus();
+				}
+			}
+
+			else if (event.key == "ArrowRight") {
+				if (element.selectionStart == element.value.length && element.selectionEnd == element.value.length && product_inputs.indexOf(element) < product_inputs.length - 1) {
+					event.preventDefault();
+					document.getElementsByClassName("product_input")[product_inputs.indexOf(element) + 1].selectionStart = 0;
+					document.getElementsByClassName("product_input")[product_inputs.indexOf(element) + 1].selectionEnd = 0;
+					document.getElementsByClassName("product_input")[product_inputs.indexOf(element) + 1].focus();
+				}
+			}
+		}
+
+		function step2() {
+			sessionStorage.step = 2;
+			for (let i = 0; i < document.getElementsByClassName("product_plus").length; i++) {
+				document.getElementsByClassName("product_plus")[i].style.display = "inline-block";
+				document.getElementsByClassName("product_plus")[i].style.opacity = "0";
+				setTimeout(function() {
+					document.getElementsByClassName("product_plus")[i].style.opacity = "1";
+				}, 50);
+			}
+			for (let i = 0; i < document.getElementsByClassName("product_input").length; i++) {
+				document.getElementsByClassName("product_input")[i].style.display = "inline-block";
+				document.getElementsByClassName("product_input")[i].style.transition = "width 1s";
+				document.getElementsByClassName("product_input")[i].style.width = "0vw";
+
+				if (i == 0) {
+					document.getElementsByClassName("product_input")[i].focus();
+				}
+				
+				setTimeout(function() {
+					document.getElementsByClassName("product_input")[i].style.width = "10vw";
+				}, 50);
+
+				setTimeout(function() {
+					document.getElementsByClassName("product_input")[i].style.transition = "none";
+				}, 1000);
+			}
+		}
+
+		function step3() {
+			sessionStorage.step = 3;
+
+			for (let i = 0; i < document.getElementsByClassName("coefficient_input").length; i++) {
+				document.getElementsByClassName("coefficient_input")[i].style.display = "inline-block";
+				document.getElementsByClassName("coefficient_input")[i].style.transition = "width 1s";
+				document.getElementsByClassName("coefficient_input")[i].style.width = "0vw";
+
+				if (i == 0) {
+					document.getElementsByClassName("coefficient_input")[i].focus();
+				}
+				
+				setTimeout(function() {
+					document.getElementsByClassName("coefficient_input")[i].style.width = "3vw";
+				}, 50);
+
+				setTimeout(function() {
+					document.getElementsByClassName("coefficient_input")[i].style.transition = "none";
+				}, 1000);
+			}
+			
+			for (let i = 0; i < document.getElementsByClassName("product_input").length; i++) {
+				document.getElementsByClassName("product_input")[i].style.transition = "opacity 1s, width 1s, padding 1s";
+
+				setTimeout(function() {
+					document.getElementsByClassName("product_input")[i].style.opacity = "0";
+					document.getElementsByClassName("product_input")[i].style.width = "0";
+					document.getElementsByClassName("product_input")[i].style.padding = "0";
+				});
+
+				setTimeout(function() {
+					document.getElementsByClassName("product_input")[i].style.transition = "none";
+					document.getElementsByClassName("product_input")[i].style.display = "none";
+				}, 1000);
+				
+				var compound_name = document.getElementsByClassName("product_input")[i].id.replace("product_input_", "");
+				var product = document.createElement("span");
+				product.classList.add("product");
+				product.id = `product_${compound_name}`;
+				product.innerHTML = `${parse_formula(compound_name)}&nbsp;`;
+				document.getElementsByClassName("product_input")[i].insertAdjacentElement("afterend", product);
+			}
+
+			for (let i = 0; i < document.getElementsByClassName("product").length; i++) {
+				document.getElementsByClassName("product")[i].style.transition = "opacity 1s";
+				document.getElementsByClassName("product")[i].style.display = "inline-block";
+			}
+		}
+
+		document.onkeydown = function(event) {
+			if (event.key == "a") {
+				if (sessionStorage.step == 0) {
+					event.preventDefault();
+				}
+				select_type("synthesis", document.getElementById("type_button_1"));
+			}
+			else if (event.key == "b") {
+				if (sessionStorage.step == 0) {
+					event.preventDefault();
+				}
+				select_type("decomposition", document.getElementById("type_button_2"));
+			}
+			else if (event.key == "c") {
+				if (sessionStorage.step == 0) {
+					event.preventDefault();
+				}
+				select_type("single_displacement", document.getElementById("type_button_3"));
+			}
+			else if (event.key == "d") {
+				if (sessionStorage.step == 0) {
+					event.preventDefault();
+				}
+				select_type("double_displacement", document.getElementById("type_button_4"));
+			}
+			else if (event.key == "e") {
+				if (sessionStorage.step == 0) {
+					event.preventDefault();
+				}
+				select_type("combustion", document.getElementById("type_button_5"));
+			}
+			else if (event.key == "f") {
+				if (sessionStorage.step == 0) {
+					event.preventDefault();
+				}
+				select_type("neutralization", document.getElementById("type_button_6"));
+			}
+			else if (event.key == "y") {
+				if (sessionStorage.step == 1) {
+					event.preventDefault();
+				}
+				select_reaction("true");
+			}
+			else if (event.key == "n") {
+				if (sessionStorage.step == 1) {
+					event.preventDefault();
+				}
+				select_reaction("false");
+			}
+			else if (event.key == "?") {
+				event.preventDefault();
+				if (document.getElementById("info") == null) {
+					if (sessionStorage.step == 0) {
+						switch (sessionStorage.type) {
+							case "synthesis":
+								info("Since there are 2 reactants (both elements), this is a <b>synthesis</b> reaction.", document.getElementById("equation"));
+								break;
+							case "decomposition":
+								info("Since there is 1 reactant (an element), this is a <b>decomposition</b> reaction.", document.getElementById("equation"));
+								break;
+							case "single_displacement":
+								info("Since there are 2 reactants (an element and a compound), this is a <b>single displacement</b> reaction.", document.getElementById("equation"));
+								break;
+							case "double_displacement":
+								info("Since there are 2 reactants (both compounds), this is a <b>double displacement</b> reaction.", document.getElementById("equation"));
+								break;
+							case "combustion":
+								info("Since there are 2 reactants (a hydrocarbon and O<sub>2</sub>), this is a <b>combustion</b> reaction.", document.getElementById("equation"));
+								break;
+							default:
+								info("Since there are 2 reactants (an acid and a base or carbonate), this is a <b>neutralization</b> reaction.", document.getElementById("equation"));
+						}
+					}
+					else if (sessionStorage.step == 1) {
+						switch (sessionStorage.reaction) {
+							case "true":
+								if (sessionStorage.type == "single_displacement") {
+									if (JSON.parse(sessionStorage.equation).products.map((x) => x.name).some(x => ["F", "Cl", "Br", "I", "At", "Ts"].includes(x))) {
+										info(`Since the displacing halogen has a lower atomic number than the displaced halogen, <b>there is a reaction</b>.`, document.getElementById("equation"));
+									}
+									else {
+										info(`Since the displacing metal is higher on the reactivity series than the displaced metal, <b>there is a reaction</b>.`, document.getElementById("equation"));
+									}
+								}
+								else {
+									info(`Since one of the products is a precipitate (insoluble in water), gas, or H<sub>2</sub>O, <b>there is a reaction</b>.`, document.getElementById("equation"));
+								}
+								break;
+							default:
+								if (sessionStorage.type == "single_displacement") {
+									if (JSON.parse(sessionStorage.equation).products.map((x) => x.name).some(x => ["F", "Cl", "Br", "I", "At", "Ts"].includes(x))) {
+										info(`Since the displacing halogen has a higher atomic number than the displaced halogen, <b>there is no reaction</b>.`, document.getElementById("equation"));
+									}
+									else {
+										info("Since the displacing reactant is lower on the reactivity series than the displaced element, <b>there is no reaction</b>.", document.getElementById("equation"));
+									}
+								}
+								else {
+									info("Since none of the products is a precipitate (insoluble in water), gas, or H<sub>2</sub>O, <b>there is no reaction</b>.", document.getElementById("equation"));
+								}
+								break;
+						}
+					}
+					else if (sessionStorage.step == 2) {
+						var products = JSON.parse(sessionStorage.equation).products.map((x) => parse_formula(x.name));
+						var product_list = `${products.slice(0, -1).join(", ")}${products.length > 1 ? " and " : ""}${products.slice(-1)}`
+						switch (sessionStorage.type) {
+							case "synthesis":
+								info(`Since this is a synthesis reaction, the reactants combine to form <b>${products[0]}</b>.`, document.getElementById("equation"));
+								break;
+							case "decomposition":
+								info(`Since this is a decomposition reaction, the reactant breaks down into <b>${product_list}</b>.`, document.getElementById("equation"));
+								break;
+							case "single_displacement":
+								if (JSON.parse(sessionStorage.equation).products.map((x) => x.name).some(x => ["F", "Cl", "Br", "I", "At", "Ts"].includes(x))) {
+									info(`Since this is a single displacement reaction, the halogens swap places, forming <b>${product_list}</b>.`, document.getElementById("equation"));
+								}
+								else {
+									info(`Since this is a single displacement reaction, the metals swap places, forming <b>${product_list}</b>.`, document.getElementById("equation"));
+								}
+								break;
+							case "double_displacement":
+								info(`Since this is a double displacement reaction, the reactants swap ions, forming <b>${product_list}</b>.`, document.getElementById("equation"));
+								break;
+							case "combustion":
+								info(`In a combustion reaction, the products are always <b>${product_list}</b>.`, document.getElementById("equation"));
+								break;
+							default:
+								info(`Since this is a neutralization reaction, the products are <b>${product_list}</b>.`, document.getElementById("equation"));
+						}
+					}
+					else if (sessionStorage.step == 3) {
+						info(`The balanced equation is <b>${sessionStorage.equation_text}</b>.`, document.getElementById("equation"));
+					}
+				}
+			}
+			else if (event.key == "Enter") {
+				if (sessionStorage.step == 2) {
+					var products = Array.from(document.getElementsByClassName("product_input")).map((x) => x.value);
+					var products_solution = JSON.parse(sessionStorage.equation).products.map((x) => x.name);
+
+					products.sort();
+					products_solution.sort()
+
+					if (JSON.stringify(products) == JSON.stringify(products_solution)) {
+						checkmark();
+						step3();
+					}
+					else {
+						x();
+					}
+				}
+				else if (sessionStorage.step == 3) {
+					var all_correct = true;
+					var coefficient_inputs = Array.from(document.getElementsByClassName("coefficient_input"));
+					var compounds = JSON.parse(sessionStorage.equation).reactants.concat(JSON.parse(sessionStorage.equation).products);
+					for (let i = 0; i < coefficient_inputs.length; i++) {
+						if (coefficient_inputs[i].value != compounds.map((x) => x.coefficient)[compounds.map((x) => x.name).indexOf(coefficient_inputs[i].id.replace("coefficient_input_", ""))]) {
+							all_correct = false;
+						}
+					}
+					if (all_correct) {
+						checkmark();
+						reset(false);
+					}
+					else {
+						x();
+					}
+				}
+			}
+		}
+	</script>
+</html>
