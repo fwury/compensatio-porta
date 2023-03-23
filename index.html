@@ -508,7 +508,7 @@
 			return formula.replace(/\d+/g, "<sub>$&</sub>");
 		}
 
-		function checkmark() {
+		function checkmark(last) {
 			var checkmark = document.createElement("img");
 			checkmark.src = "assets/checkmark.png";
 			checkmark.style.position = "fixed";
@@ -523,9 +523,15 @@
 			setTimeout(function() {
 				checkmark.remove();
 			}, 1000);
-
-			var audio = new Audio('assets/correct.mp3');
-			audio.play();
+			
+			if (last) {
+				var audio = new Audio('assets/success.mp3');
+				audio.play();
+			}
+			else {
+				var audio = new Audio('assets/correct.mp3');
+				audio.play();
+			}
 		}
 
 		function elements_in(formula) {
@@ -1244,7 +1250,7 @@
 						}
 					}
 					if (all_correct) {
-						checkmark();
+						checkmark(true);
 						reset(false);
 					}
 					else {
