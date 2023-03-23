@@ -567,6 +567,9 @@
 			if (window.innerWidth / window.innerHeight < 1.6 || window.innerWidth / window.innerHeight > 2.05) {
 				info("Your window aspect ratio is not suitable for viewing this website. Some elements may not be displayed properly.", document.getElementById("equation"));
 			}
+			else {
+				info("Type <b>?</b> to reveal the answer.", document.getElementById("equation"));
+			}
 		}
 
 		function info(text, existing_element) {
