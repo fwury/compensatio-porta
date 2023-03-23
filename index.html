@@ -997,9 +997,9 @@
 		}
 
 		function step2() {
-			if (localStorage.message_shown == null) {
+			if (sessionStorage.message1_shown == null) {
 				info("<b>You don't need to worry about subscripts!</b> For example, <i>CaCO<sub>3</sub></i> would be typed as <i>CaCO3</i>.", document.getElementById("equation"));
-				localStorage.message_shown = true;
+				sessionStorage.message1_shown = true;
 			}
 			
 			sessionStorage.step = 2;
@@ -1030,6 +1030,10 @@
 		}
 
 		function step3() {
+			if (sessionStorage.message2_shown == null) {
+				info("<b>Type <i>1</i> if the coefficient is 1!</b> Typing nothing will be marked incorrect.", document.getElementById("equation"));
+				sessionStorage.message2_shown = true;
+			}
 			sessionStorage.step = 3;
 
 			for (let i = 0; i < document.getElementsByClassName("coefficient_input").length; i++) {
